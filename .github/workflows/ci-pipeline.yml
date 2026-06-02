@@ -61,17 +61,21 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 10m
         script: |
-          # KORREKTUR: Jetzt mit den echten, vollständigen AWS-Pfaden für den Server!
+        
+          # Bei ECR anmelden
           aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 334321697724.dkr.ecr.eu-central-1.amazonaws.com
           
-          # --- BACKEND NEUSTART ---
+          # NEU: Ein gemeinsames Netzwerk erstellen, falls es noch nicht existiert
+          sudo docker network create restkiste-network || true
+          
+          # --- BACKEND NEUSTART (Jetzt im Netzwerk eingeklinkt mit dem Namen "backend") ---
           sudo docker stop restkiste-backend || true
           sudo docker rm restkiste-backend || true
           sudo docker pull 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
-          sudo docker run -d -p 3000:3000 --name restkiste-backend 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
+          sudo docker run -d -p 3000:3000 --name restkiste-backend --network restkiste-network --network-alias backend 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
           
-          # --- FRONTEND NEUSTART ---
+          # --- FRONTEND NEUSTART (Ebenfalls im Netzwerk eingeklinkt) ---
           sudo docker stop restkiste-frontend || true
           sudo docker rm restkiste-frontend || true
-          sudo docker pull 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-frontend:latest
-          sudo docker run -d -p 80:80 --name restkiste-frontend 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-frontend:latest
+          sudo docker pull 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-frontend
+          sudo docker run -d -p 80:80 --name restkiste-frontend --network restkiste-network 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-frontend
