@@ -1,28 +1,48 @@
+version: '3.8'
+
 services:
-  frontend:
-    build: ./frontend
-    container_name: mein_frontend
-    ports:
-      - "3000:80" # Links: Dein Browser (localhost:3000) -> Rechts: Nginx im Container (80)
+  # 1. DATENBANK CONTAINER
+  database:
+    image: mongo:latest # Holt das offizielle Image aus dem Docker Hub
+    container_name: restkiste-database
     restart: always
-
-  backend:
-    build: ./backend
-    container_name: mein_backend
     ports:
-      - "5000:5000"
-    depends_on:
-      - datenbank
-    environment:
-      - MONGO_URI=mongodb://datenbank:27017/restkiste
-    restart: always
-
-  datenbank:
-    image: mongo:latest
-    container_name: mein_mongodb
+      - "27017:27017"
     volumes:
-      - mongo_daten:/data/db
+      - mongo-data:/data/db # WICHTIG: Sichert die Daten dauerhaft auf der Festplatte des Servers
+    networks:
+      - restkiste-network
+
+  # 2. BACKEND CONTAINER
+  backend:
+    image: ://amazonaws.com
+    container_name: restkiste-backend
     restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Hier sagen wir dem Backend, wie es die Datenbank im Docker-Netzwerk erreicht
+      - MONGO_URL=mongodb://database:27017/restkiste
+    networks:
+      - restkiste-network
+    depends_on:
+      - database # Wartet, bis die Datenbank gestartet ist
+
+  # 3. FRONTEND CONTAINER
+  frontend:
+    image: ://amazonaws.com
+    container_name: restkiste-frontend
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - restkiste-network
+
+# Definition des gemeinsamen Netzwerks und des Speichers
+networks:
+  restkiste-network:
+    driver: bridge
 
 volumes:
-  mongo_daten:
+  mongo-data:
+    driver: local
