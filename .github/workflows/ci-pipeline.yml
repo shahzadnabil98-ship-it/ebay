@@ -49,7 +49,7 @@ jobs:
         docker build --platform linux/amd64 -t $ECR_REGISTRY/restkiste-backend:$IMAGE_TAG ./backend
         docker push $ECR_REGISTRY/restkiste-backend:$IMAGE_TAG
         
-        # Frontend (NEU)
+        # Frontend
         docker build --platform linux/amd64 -t $ECR_REGISTRY/restkiste-frontend:$IMAGE_TAG ./frontend
         docker push $ECR_REGISTRY/restkiste-frontend:$IMAGE_TAG
 
@@ -61,17 +61,17 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 10m
         script: |
-          # Bei ECR anmelden
-          aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin ://amazonaws.com
+          # KORREKTUR: Jetzt mit den echten, vollständigen AWS-Pfaden für den Server!
+          aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 334321697724.dkr.ecr.eu-central-1.amazonaws.com
           
           # --- BACKEND NEUSTART ---
           sudo docker stop restkiste-backend || true
           sudo docker rm restkiste-backend || true
-          sudo docker pull ://amazonaws.com/restkiste-backend:latest
-          sudo docker run -d -p 3000:3000 --name restkiste-backend ://amazonaws.com/restkiste-backend:latest
+          sudo docker pull 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
+          sudo docker run -d -p 3000:3000 --name restkiste-backend 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
           
-          # --- FRONTEND NEUSTART (NEU auf Port 80) ---
+          # --- FRONTEND NEUSTART ---
           sudo docker stop restkiste-frontend || true
           sudo docker rm restkiste-frontend || true
-          sudo docker pull ://amazonaws.com/restkiste-frontend:latest
-          sudo docker run -d -p 80:80 --name restkiste-frontend ://amazonaws.com/restkiste-frontend:latest
+          sudo docker pull 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-frontend:latest
+          sudo docker run -d -p 80:80 --name restkiste-frontend 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-frontend:latest
