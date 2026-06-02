@@ -1,0 +1,12 @@
+# Terraform Systemdateien blockieren
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Ihre geheimen SSH-Schlüssel blockieren (Sicherheit!)
+aws_key
+aws_key.pub
+
+# Riesen-Ordner von Node.js blockieren (falls vorhanden)
+node_modules/

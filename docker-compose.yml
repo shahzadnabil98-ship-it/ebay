@@ -1,0 +1,28 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: mein_frontend
+    ports:
+      - "3000:80" # Links: Dein Browser (localhost:3000) -> Rechts: Nginx im Container (80)
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: mein_backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - datenbank
+    environment:
+      - MONGO_URI=mongodb://datenbank:27017/restkiste
+    restart: always
+
+  datenbank:
+    image: mongo:latest
+    container_name: mein_mongodb
+    volumes:
+      - mongo_daten:/data/db
+    restart: always
+
+volumes:
+  mongo_daten:

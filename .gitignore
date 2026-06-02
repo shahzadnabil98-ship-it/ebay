@@ -1,0 +1,7 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+aws_key
+aws_key.pub
+node_modules/
