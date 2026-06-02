@@ -1,5 +1,9 @@
 name: RestKiste CI/CD Pipeline
 
+# Beseitigt die Node.js 20 Warnungen
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [ main, master ]
@@ -53,8 +57,9 @@ jobs:
         username: ec2-user
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin ://amazonaws.com
+          # KORREKTUR: Vollständige AWS-Registry-Pfade für Ihren Server
+          aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 334321697724.dkr.ecr.eu-central-1.amazonaws.com
           sudo docker stop restkiste-backend || true
           sudo docker rm restkiste-backend || true
-          sudo docker pull ://amazonaws.com/restkiste-backend:latest
-          sudo docker run -d -p 3000:3000 --name restkiste-backend ://amazonaws.com/restkiste-backend:latest
+          sudo docker pull 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
+          sudo docker run -d -p 3000:3000 --name restkiste-backend 334321697724.dkr.ecr.eu-central-1.amazonaws.com/restkiste-backend:latest
