@@ -5,6 +5,7 @@ on:
     branches: [ main, master ]
 
 jobs:
+  # 1. JOB: Die Docker-Images lokal auf Fehler testen
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -19,8 +20,9 @@ jobs:
       run: |
         docker build -t restkiste-backend:test ./backend
 
+  # 2. JOB: Das Backend bauen, zu AWS ECR schieben und den Server updaten
   deploy-to-aws:
-    needs: build-and-test
+    needs: build-and-test # Wartet, bis die Tests oben erfolgreich bestanden sind
     runs-on: ubuntu-latest
     steps:
     - name: Code auschecken
@@ -43,10 +45,11 @@ jobs:
         ECR_REPOSITORY: restkiste-backend
         IMAGE_TAG: latest
       run: |
+        # Baut das Image für die AWS-Server-Architektur (amd64) und pusht es
         docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    # NEU: GitHub verbindet sich mit dem Server und startet die App neu
+    # GitHub verbindet sich per SSH mit Ihrem Amazon Linux Server und startet den Container neu
     - name: SSH Deployment auf EC2 Server
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -54,12 +57,12 @@ jobs:
         username: ec2-user
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          # Bei ECR anmelden
+          # Auf dem AWS-Server bei ECR anmelden
           aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin ://amazonaws.com
-          # Alten Container stoppen und löschen (falls vorhanden)
+          # Alten Container stoppen und löschen (falls er schon läuft)
           sudo docker stop restkiste-backend || true
           sudo docker rm restkiste-backend || true
-          # Neues Image holen
+          # Das ganz frisch hochgeladene Image aus der Cloud ziehen
           sudo docker pull ://amazonaws.com/restkiste-backend:latest
-          # Container neu starten
+          # Den neuen Container im Hintergrund starten
           sudo docker run -d -p 3000:3000 --name restkiste-backend ://amazonaws.com/restkiste-backend:latest
