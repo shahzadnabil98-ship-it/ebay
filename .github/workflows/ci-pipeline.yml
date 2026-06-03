@@ -68,20 +68,22 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 10m
         script: |
-        
-          # 1. Docker Compose automatisch installieren, falls es fehlt (JETZT MIT EINEM ABSOLUT SICHEREN LINK!)
-          if ! docker compose version &>/dev/null; then
-            sudo mkdir -p /usr/libexec/docker/cli-plugins
-            sudo curl -SL "https://github.com" -o /usr/libexec/docker/cli-plugins/docker-compose
-            sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
-          fi
-
-          # 2. Bei ECR anmelden
+          # 1. Bei ECR anmelden
           aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 334321697724.dkr.ecr.eu-central-1.amazonaws.com
           
-          # 3. In das Verzeichnis wechseln
-          cd /home/ec2-user/
+          # 2. Ein gemeinsames Netzwerk erstellen, falls es noch nicht existiert
+          sudo docker network create restkiste-network || true
           
-          # 4. Container-Trio starten
-          sudo docker compose pull
-          sudo docker compose up -d --remove-orphans
+          # 3. Alte Container stoppen und löschen, um Platz zu machen
+          sudo docker rm -f restkiste-backend restkiste-frontend restkiste-database || true
+          
+          # 4. DATENBANK STARTEN (Neu!)
+          sudo docker run -d -p 27017:27017 --name restkiste-database --network restkiste-network mongo:latest
+          
+          # 5. BACKEND STARTEN
+          sudo docker pull ://amazonaws.com
+          sudo docker run -d -p 3000:3000 --name restkiste-backend --network restkiste-network --network-alias backend ://amazonaws.com
+          
+          # 6. FRONTEND STARTEN
+          sudo docker pull ://amazonaws.com
+          sudo docker run -d -p 80:80 --name restkiste-frontend --network restkiste-network ://amazonaws.com
