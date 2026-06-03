@@ -82,7 +82,8 @@ jobs:
           
           # 7. BACKEND STARTEN
           sudo docker pull $REGISTRY/restkiste-backend:latest
-          sudo docker run -d -p 3000:3000 --name restkiste-backend --network restkiste-network --network-alias backend $REGISTRY/restkiste-backend:latest
+          sudo docker run -d -p 3000:3000 --name restkiste-backend --network restkiste-network --network-alias backend -e "MONGO_URL=mongodb://restkiste-database:27017/restkiste" $REGISTRY/restkiste-backend:latest
+
           
           # 8. FRONTEND STARTEN
           sudo docker pull $REGISTRY/restkiste-frontend:latest
