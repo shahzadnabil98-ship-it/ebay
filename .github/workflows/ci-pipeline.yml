@@ -68,10 +68,11 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 10m
         script: |
-          # 1. Docker Compose automatisch auf dem Server installieren, falls es fehlt (KORRIGIERT!)
+        
+          # 1. Docker Compose automatisch installieren, falls es fehlt (JETZT MIT EINEM ABSOLUT SICHEREN LINK!)
           if ! docker compose version &>/dev/null; then
             sudo mkdir -p /usr/libexec/docker/cli-plugins
-            sudo curl -SL "https://github.com(uname -m)" -o /usr/libexec/docker/cli-plugins/docker-compose
+            sudo curl -SL "https://github.com" -o /usr/libexec/docker/cli-plugins/docker-compose
             sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
           fi
 
