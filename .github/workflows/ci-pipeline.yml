@@ -53,7 +53,7 @@ jobs:
         docker build --platform linux/amd64 -t $ECR_REGISTRY/restkiste-frontend:$IMAGE_TAG ./frontend
         docker push $ECR_REGISTRY/restkiste-frontend:$IMAGE_TAG
 
-    # NEU: Kopiert die docker-compose.yml Datei auf den AWS-Server
+    # Kopiert die docker-compose.yml Datei auf den AWS-Server
     - name: Docker Compose Datei auf EC2 übertragen (SCP)
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -63,7 +63,7 @@ jobs:
         source: "docker-compose.yml"
         target: "/home/ec2-user/"
 
-    # Geändert: Nutzt jetzt docker compose statt langer docker-run Befehle
+    # Aktiviert das Trio via Docker Compose
     - name: SSH Deployment auf EC2 Server via Docker Compose
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -72,12 +72,19 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 10m
         script: |
-          # Bei ECR anmelden
+          # 1. FIX: Docker Compose automatisch auf dem Server installieren, falls es fehlt
+          if ! docker compose version &>/dev/null; then
+            sudo mkdir -p /usr/libexec/docker/cli-plugins
+            sudo curl -SL "https://github.com(uname -m)" -o /usr/libexec/docker/cli-plugins/docker-compose
+            sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+          fi
+
+          # 2. Bei ECR anmelden
           aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 334321697724.dkr.ecr.eu-central-1.amazonaws.com
           
-          # In das Verzeichnis mit der kopierten docker-compose.yml wechseln
+          # 3. In das Verzeichnis mit der kopierten docker-compose.yml wechseln
           cd /home/ec2-user/
           
-          # Alle neuen Images herunterladen und die 3 Container (Frontend, Backend, DB) gleichzeitig updaten
+          # 4. Alle 3 Container gleichzeitig updaten und im Hintergrund starten
           sudo docker compose pull
           sudo docker compose up -d --remove-orphans
