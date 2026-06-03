@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 // 1. MongoDB Verbindung
-const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/restkiste';
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/restkiste';
 mongoose.connect(mongoURI)
     .then(() => console.log('Erfolgreich mit MongoDB verbunden!'))
     .catch(err => console.error('MongoDB Verbindungsfehler:', err));
