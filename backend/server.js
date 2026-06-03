@@ -8,8 +8,8 @@ app.set('trust proxy', true);
 app.use(express.json());
 app.use(cors());
 
-// 1. MongoDB Verbindung
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/restkiste';
+// KORREKTUR: Jetzt mit MONGO_URL (passend zur GitHub-Pipeline)
+const mongoURI = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/restkiste';
 mongoose.connect(mongoURI)
     .then(() => console.log('Erfolgreich mit MongoDB verbunden!'))
     .catch(err => console.error('MongoDB Verbindungsfehler:', err));
