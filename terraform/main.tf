@@ -144,8 +144,15 @@ resource "aws_instance" "app_server" {
     Name = "RestKiste-Backend-Server"
   }
 }
+# --- FESTE IP-ADRESSE RESERVIEREN (ELASTIC IP) ---
+resource "aws_eip" "restkiste_eip" {
+  domain   = "vpc"
+  instance = aws_instance.app_server.id # Bindet die IP fest an Ihren Server
+  tags     = { Name = "restkiste-static-ip" }
+}
 
+# NUR NOCH EIN EINDEUTIGER OUTPUT (Nutzt die feste Elastic IP)
 output "server_public_ip" {
-  value       = aws_instance.app_server.public_ip
-  description = "Die öffentliche IP-Adresse Ihres neuen AWS-Servers"
+  value       = aws_eip.restkiste_eip.public_ip
+  description = "Ihre DAUERHAFTE, feste öffentliche IP-Adresse für GitHub und den Browser"
 }
