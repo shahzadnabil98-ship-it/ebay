@@ -2,6 +2,8 @@ name: RestKiste CI/CD Pipeline
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  AWS_ACCOUNT_ID: "334321697724"
+  AWS_REGION: "eu-central-1"
 
 on:
   push:
@@ -51,39 +53,37 @@ jobs:
         docker build --platform linux/amd64 -t $ECR_REGISTRY/restkiste-frontend:$IMAGE_TAG ./frontend
         docker push $ECR_REGISTRY/restkiste-frontend:$IMAGE_TAG
 
-    - name: Docker Compose Datei auf EC2 übertragen (SCP)
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: 3.69.4.59 # <--- HIER DEINE NEUE FESTE IP EINTRAGEN!
-        username: ec2-user
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "docker-compose.yml"
-        target: "/home/ec2-user/"
-
-    - name: SSH Deployment auf EC2 Server via Docker Compose
+    - name: SSH Deployment auf EC2 Server
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: 3.69.4.59 # <--- HIER AUCH DEINE NEUE FESTE IP EINTRAGEN!
+        host: 18.193.88.149
         username: ec2-user
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         timeout: 10m
         script: |
-          # 1. Bei ECR anmelden
-          aws ecr get-login-password --region eu-central-1 | sudo docker login --username AWS --password-stdin 334321697724.dkr.ecr.eu-central-1.amazonaws.com
+          # 1. Das zerschossene AWS-CLI auf dem Server reparieren
+          sudo pip3 uninstall -y urllib3 botocore awscli || true
+          sudo yum reinstall -y aws-cli || true
           
-          # 2. Ein gemeinsames Netzwerk erstellen, falls es noch nicht existiert
+          # 2. Die Registry-Adresse dynamisch zusammenbauen
+          REGISTRY="${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
+          
+          # 3. Bei ECR anmelden
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin $REGISTRY
+          
+          # 4. Netzwerk sichern
           sudo docker network create restkiste-network || true
           
-          # 3. Alte Container stoppen und löschen, um Platz zu machen
+          # 5. Alte blockierende Container entfernen
           sudo docker rm -f restkiste-backend restkiste-frontend restkiste-database || true
           
-          # 4. DATENBANK STARTEN (Neu!)
+          # 6. REPRÄSENTATIVE DATENBANK STARTEN
           sudo docker run -d -p 27017:27017 --name restkiste-database --network restkiste-network mongo:latest
           
-          # 5. BACKEND STARTEN
-          sudo docker pull ://amazonaws.com
-          sudo docker run -d -p 3000:3000 --name restkiste-backend --network restkiste-network --network-alias backend ://amazonaws.com
+          # 7. BACKEND STARTEN
+          sudo docker pull $REGISTRY/restkiste-backend:latest
+          sudo docker run -d -p 3000:3000 --name restkiste-backend --network restkiste-network --network-alias backend $REGISTRY/restkiste-backend:latest
           
-          # 6. FRONTEND STARTEN
-          sudo docker pull ://amazonaws.com
-          sudo docker run -d -p 80:80 --name restkiste-frontend --network restkiste-network ://amazonaws.com
+          # 8. FRONTEND STARTEN
+          sudo docker pull $REGISTRY/restkiste-frontend:latest
+          sudo docker run -d -p 80:80 --name restkiste-frontend --network restkiste-network $REGISTRY/restkiste-frontend:latest
