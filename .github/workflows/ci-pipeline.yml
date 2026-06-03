@@ -57,7 +57,7 @@ jobs:
     - name: Docker Compose Datei auf EC2 übertragen (SCP)
       uses: appleboy/scp-action@v0.1.7
       with:
-        host: 18.192.107.240
+        host: 3.69.4.59
         username: ec2-user
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         source: "docker-compose.yml"
