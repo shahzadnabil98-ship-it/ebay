@@ -93,3 +93,7 @@ kubectl apply -f frontend-deployment.yaml
 *   **Tiefgreifendes System-Troubleshooting:** Beim Verknüpfen der Datenquellen traten Blockaden bei der clusterinternen Kommunikation zwischen verschiedenen Namespaces auf. Gelöst wurde dies durch den gezielten Einsatz von **internem Cluster-IP-Routing** für die Prometheus-Endpunkte (`http://[Cluster-IP]:80`), anstatt sich nur auf Standard-DNS-Auflösungen zu verlassen.
 *   **Selbstheilende Cluster:** Die Lebenszyklen von Kubernetes-Containern wurden hautnah beobachtet – die automatische Statuswiederherstellung und aktive Selbstheilung von Containern nach Cluster-Ausfällen wurden erfolgreich verifiziert.
 *   **Architektonische Abwägungen:** Migration von einer flachen Docker-Laufzeitumgebung zu einer skalierbaren Kubernetes-Struktur, um den Umgang mit Helm-Deployments und professionellen Cluster-Operationen zu meistern.
+
+
+
+
