@@ -58,7 +58,7 @@ Um eine vollständige Sichtbarkeit des gesamten Ökosystems zu erreichen, wurde 
 *Hier visualisiert Grafana den aktiven Arbeitsspeicher-Verbrauch, die CPU-Verteilung und den Netzwerk-Durchsatz über alle Cluster-Knoten hinweg.*
 ![Kubernetes Core Metrics](https://githubusercontent.com[DEIN_GITHUB_USERNAME]/[DEIN_REPOSITORY_NAME]/main/images/prometheus-dashboard.png) *(Ersetze dies durch deinen Grafana-Screenshot)*
 
-#### 🪵 Zentralisierte Log-Verwaltung & Diagnose-Stream (Grafana Loki)
+####  Zentralisierte Log-Verwaltung & Diagnose-Stream (Grafana Loki)
 *Mithilfe der semantischen Abfragen von Loki werden Anwendungs-Fehlercodes isoliert und direkt über die Grafana Explore-UI analysiert.*
 ![Grafana Loki Log Streams](https://githubusercontent.com[DEIN_GITHUB_USERNAME]/[DEIN_REPOSITORY_NAME]/main/images/loki-dashboard.png) *(Ersetze dies durch deinen Loki/Explore-Screenshot)*
 
@@ -89,7 +89,7 @@ kubectl apply -f frontend-deployment.yaml
 
 ---
 
-## 🛠️ Gelernte Lektionen & Technische Erfolge
+##  Gelernte Lektionen & Technische Erfolge
 *   **Tiefgreifendes System-Troubleshooting:** Beim Verknüpfen der Datenquellen traten Blockaden bei der clusterinternen Kommunikation zwischen verschiedenen Namespaces auf. Gelöst wurde dies durch den gezielten Einsatz von **internem Cluster-IP-Routing** für die Prometheus-Endpunkte (`http://[Cluster-IP]:80`), anstatt sich nur auf Standard-DNS-Auflösungen zu verlassen.
 *   **Selbstheilende Cluster:** Die Lebenszyklen von Kubernetes-Containern wurden hautnah beobachtet – die automatische Statuswiederherstellung und aktive Selbstheilung von Containern nach Cluster-Ausfällen wurden erfolgreich verifiziert.
 *   **Architektonische Abwägungen:** Migration von einer flachen Docker-Laufzeitumgebung zu einer skalierbaren Kubernetes-Struktur, um den Umgang mit Helm-Deployments und professionellen Cluster-Operationen zu meistern.
