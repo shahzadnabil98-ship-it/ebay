@@ -94,6 +94,15 @@ kubectl apply -f frontend-deployment.yaml
 *   **Selbstheilende Cluster:** Die Lebenszyklen von Kubernetes-Containern wurden hautnah beobachtet – die automatische Statuswiederherstellung und aktive Selbstheilung von Containern nach Cluster-Ausfällen wurden erfolgreich verifiziert.
 *   **Architektonische Abwägungen:** Migration von einer flachen Docker-Laufzeitumgebung zu einer skalierbaren Kubernetes-Struktur, um den Umgang mit Helm-Deployments und professionellen Cluster-Operationen zu meistern.
 
+###  Project Focus Notice 
+Since this repository serves strictly as a **DevOps, CI/CD, and Infrastructure portfolio**, the focus is 100% placed on automation, cloud architecture, orchestration, and monitoring. The frontend (HTML/CSS/JS) is designed purely as a functional demo to visualize real-time data flow through the entire pipeline. Design aesthetics were intentionally kept minimal to prioritize core engineering and systems operations.
+
+### Lessons Learned & Technical Achievements
+*   **Deep System Troubleshooting:** Resolved cluster-internal communication blockages between namespaces by implementing targeted internal Cluster-IP routing for Prometheus endpoints (`http://[Cluster-IP]:80`) instead of relying solely on default DNS resolution.
+*   **Self-Healing Clusters:** Gained hands-on experience with Kubernetes container lifecycles, successfully verifying automatic state recovery and active self-healing capabilities after simulated cluster disruptions.
+*   **Architectural Trade-offs:** Managed the migration from a flat Docker runtime environment to a scalable Kubernetes structure, strengthening practical skills in Helm deployments and professional cluster operations.
+
+
 
 
 
