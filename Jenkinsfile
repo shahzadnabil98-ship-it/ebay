@@ -21,10 +21,10 @@ pipeline {
             }
         }
 
-                stage('3. In Kubernetes (Minikube) bereitstellen') {
+        stage('3. In Kubernetes (Minikube) bereitstellen') {
             steps {
-                // Ein reiner Punkt sucht nach allen .yaml Dateien im aktuellen Verzeichnis
-                sh "kubectl apply -f ."
+                // KORREKTUR: Wir wenden gezielt nur die Dateien im kubernetes-Ordner an!
+                sh "kubectl apply -f ./kubernetes/"
                 
                 // Danach updaten wir das Image auf die brandneue Version
                 sh "kubectl set image deployment/frontend-deployment frontend=${REGISTRY_USER}/${IMAGE_NAME}:${IMAGE_TAG} || true"
