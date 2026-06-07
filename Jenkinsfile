@@ -21,11 +21,10 @@ pipeline {
             }
         }
 
-        stage('3. In Kubernetes (Minikube) bereitstellen') {
+                stage('3. In Kubernetes (Minikube) bereitstellen') {
             steps {
-                // Wir gehen in den frisch heruntergeladenen Ordner und wenden alle YAMLs an
-                // Das erstellt die Datenbank, das Backend und das Frontend vollautomatisch!
-                sh "kubectl apply -f ./kubernetes/"
+                // Ein reiner Punkt sucht nach allen .yaml Dateien im aktuellen Verzeichnis
+                sh "kubectl apply -f ."
                 
                 // Danach updaten wir das Image auf die brandneue Version
                 sh "kubectl set image deployment/frontend-deployment frontend=${REGISTRY_USER}/${IMAGE_NAME}:${IMAGE_TAG} || true"
