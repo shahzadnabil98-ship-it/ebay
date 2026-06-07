@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        REGISTRY_USER = 'DEIN_DOCKERHUB_USER' 
+        REGISTRY_USER = 'shahzadnabil98-ship-it' 
         IMAGE_NAME    = 'haushalts-frontend'
         IMAGE_TAG     = "v1.0.${BUILD_NUMBER}"
     }
