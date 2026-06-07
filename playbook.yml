@@ -1,0 +1,23 @@
+---
+- name: AWS EC2 Server für Kubernetes vorbereiten
+  hosts: restkiste_server
+  become: true
+
+  vars:
+    g_cloud: "storage.googleapis"
+    g_path: "kubernetes-release/release/v1.30.0/bin/linux/amd64/kubectl"
+
+  tasks:
+    # 1. Kubectl bleibt so, das hat ja schon geklappt!
+    - name: Installiere kubectl fehlerfrei
+      get_url:
+        url: "https://{{ g_cloud }}.com/{{ g_path }}"
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    # 2. Minikube über den ultrakurzen Google-Direktlink laden
+    - name: Installiere minikube fehlerfrei
+      get_url:
+        url: "https://googleapis.com"
+        dest: /usr/local/bin/minikube
+        mode: '0755'

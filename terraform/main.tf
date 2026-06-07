@@ -53,9 +53,7 @@ resource "aws_key_pair" "deployer" {
   public_key = file("${path.module}/../aws_key.pub")
 }
 
-# --- IAM ROLLE FÜR ECR ZUGRIFF (NEU & WICHTIG) ---
-
-# --- IAM ROLLE FÜR ECR ZUGRIFF (KORRIGIERT) ---
+# --- IAM ROLLE FÜR ECR ZUGRIFF ---
 
 resource "aws_iam_role" "ec2_ecr_role" {
   name = "restkiste-ec2-ecr-role"
@@ -67,13 +65,12 @@ resource "aws_iam_role" "ec2_ecr_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com" # <--- HIER WAR DER FEHLER (Muss exakt so heißen!)
+          Service = "ec2.amazonaws.com"
         }
       }
     ]
   })
 }
-
 
 resource "aws_iam_role_policy_attachment" "ecr_read" {
   role       = aws_iam_role.ec2_ecr_role.name
@@ -98,13 +95,15 @@ resource "aws_security_group" "restkiste_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-    # Frontend Port (Standard HTTP)
+
+  # Frontend Port (Standard HTTP)
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   ingress {
     from_port   = 3000
     to_port     = 3000
@@ -123,14 +122,20 @@ resource "aws_security_group" "restkiste_sg" {
 # --- SERVER (EC2) ---
 
 resource "aws_instance" "app_server" {
-  ami                    = "ami-0f1834be8d049e69f" # KORREKTUR: Offizielles Amazon Linux 2023 AMI
-  instance_type          = "t2.micro"
+  ami                    = "ami-0f1834be8d049e69f" 
+  instance_type          = "t3.medium"
   subnet_id              = aws_subnet.restkiste_subnet.id
   vpc_security_group_ids = [aws_security_group.restkiste_sg.id]
   key_name               = aws_key_pair.deployer.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name # Rolle zuweisen
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name 
 
-  # KORREKTUR: Richtige Installations-Befehle für Amazon Linux
+  # Festplatte auf 30GB vergrößern
+  root_block_device {
+    volume_size           = 30
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+
   user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
@@ -144,14 +149,17 @@ resource "aws_instance" "app_server" {
     Name = "RestKiste-Backend-Server"
   }
 }
+
 # --- FESTE IP-ADRESSE RESERVIEREN (ELASTIC IP) ---
+
 resource "aws_eip" "restkiste_eip" {
   domain   = "vpc"
-  instance = aws_instance.app_server.id # Bindet die IP fest an Ihren Server
+  instance = aws_instance.app_server.id
   tags     = { Name = "restkiste-static-ip" }
 }
 
-# NUR NOCH EIN EINDEUTIGER OUTPUT (Nutzt die feste Elastic IP)
+# --- OUTPUT ---
+
 output "server_public_ip" {
   value       = aws_eip.restkiste_eip.public_ip
   description = "Ihre DAUERHAFTE, feste öffentliche IP-Adresse für GitHub und den Browser"
