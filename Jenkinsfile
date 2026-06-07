@@ -21,12 +21,14 @@ pipeline {
             }
         }
 
-                stage('3. In Kubernetes (Minikube) bereitstellen') {
+    stage('3. In Kubernetes (Minikube) bereitstellen') {
             steps {
-                // Das sucht jetzt erfolgreich nach dem echten kubernetes/ Ordner von GitHub
-                sh "kubectl apply -f ./kubernetes/"
+                // Wir wenden gezielt nur die drei echten Kubernetes-Dateien an!
+                sh "kubectl apply -f frontend-deployment.yaml || true"
+                sh "kubectl apply -f backend-deployment.yaml || true"
+                sh "kubectl apply -f database-deployment.yaml || true"
                 
-                // Aktualisiert die neue Frontend-Version im Cluster
+                // Danach updaten wir das Image im laufenden Betrieb
                 sh "kubectl set image deployment/frontend-deployment frontend=${REGISTRY_USER}/${IMAGE_NAME}:${IMAGE_TAG} || true"
                 sh "kubectl rollout restart deployment/frontend-deployment || true"
             }
